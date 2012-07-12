@@ -14,14 +14,20 @@ Mapstraction: {
 			var map = me.maps[me.api];
 			var shape = map.GetShapeByID(event.elementID);
 			if (shape && shape.mapstraction_marker) {
-				shape.mapstraction_marker.click.fire();   
+				shape.mapstraction_marker.click.fire();
 			} 
 			else {
 				var x = event.mapX;
 				var y = event.mapY;
 				var pixel = new VEPixel(x, y);
 				var ll = map.PixelToLatLong(pixel);
-				me.click.fire({'location': new mxn.LatLonPoint(ll.Latitude, ll.Longitude)});
+				var eventArg = {
+					'location': new mxn.LatLonPoint(ll.Latitude, ll.Longitude),
+					'position': { x: event.mapX, y: event.mapY },
+					'button': event.rightMouseButton ? 'right' : 'left'
+				};
+				
+				me.click.fire(eventArg);
 			}
 		});
 		this.maps[api].AttachEvent('onendzoom', function(event){
@@ -65,7 +71,7 @@ Mapstraction: {
 			map.SetDashboardSize(VEDashboardSize.Tiny);
 		}
 
-	  	if (args.zoom == 'large') {
+		if (args.zoom == 'large') {
 			map.SetDashboardSize(VEDashboardSize.Small);
 		}
 		else if ( args.zoom == 'small' ) {
@@ -108,7 +114,7 @@ Mapstraction: {
 	setCenterAndZoom: function(point, zoom) { 
 		var map = this.maps[this.api];
 		var pt = point.toProprietary(this.api);
-		var vzoom =  zoom;
+		var vzoom =	zoom;
 		map.SetCenterAndZoom(new VELatLong(point.lat,point.lon), vzoom);
 	},
 	
@@ -142,7 +148,7 @@ Mapstraction: {
 	addPolyline: function(polyline, old) {
 		var map = this.maps[this.api];
 		var pl = polyline.toProprietary(this.api);
-		pl.HideIcon();//hide the icon VE automatically displays
+		pl.HideIcon(); //hide the icon VE automatically displays
 		map.AddShape(pl);
 		return pl;
 	},
@@ -262,7 +268,7 @@ Mapstraction: {
 		var map = this.maps[this.api];
 		var layer = new VEShapeLayer(); 
 		var mlayerspec = new VEShapeSourceSpecification(VEDataType.GeoRSS, url, layer);
-	 	map.ImportShapeLayerData(mlayerspec);
+		map.ImportShapeLayerData(mlayerspec);
 	},
 
 	addTileLayer: function(tile_url, opacity, copyright_text, min_zoom, max_zoom) {
@@ -294,7 +300,7 @@ Mapstraction: {
 LatLonPoint: {
 	
 	toProprietary: function() {
-		return  new VELatLong(this.lat, this.lon);
+		return new VELatLong(this.lat, this.lon);
 	},
 
 	fromProprietary: function(mpoint) {
@@ -317,10 +323,10 @@ Marker: {
 			// See this article on how to patch 6.2 to correctly render offsets.
 			// http://social.msdn.microsoft.com/Forums/en-US/vemapcontroldev/thread/5ee2f15d-09bf-4158-955e-e3fa92f33cda?prof=required&ppud=4
 			if (this.iconAnchor) {
-			   customIcon.ImageOffset = new VEPixel(-this.iconAnchor[0], -this.iconAnchor[1]);
+				 customIcon.ImageOffset = new VEPixel(-this.iconAnchor[0], -this.iconAnchor[1]);
 			} 
 			else if (this.iconSize) {
-			   customIcon.ImageOffset = new VEPixel(-this.iconSize[0]/2, -this.iconSize[1]/2);
+				 customIcon.ImageOffset = new VEPixel(-this.iconSize[0]/2, -this.iconSize[1]/2);
 			}
 			mmarker.SetCustomIcon(customIcon);	
 		}
@@ -354,7 +360,9 @@ Marker: {
 	},
 
 	update: function() {
-		throw 'Not implemented';
+		var point = new mxn.LatLonPoint(this.proprietary_marker.Latitude,this.proprietary_marker.Longitude);
+		
+		this.location = point;
 	}
 	
 },
@@ -362,18 +370,35 @@ Marker: {
 Polyline: {
 
 	toProprietary: function() {
-		var mpoints =[];
-		for(var i =0, length = this.points.length; i < length; i++) {
+		var mpoints = [], mtype;
+		
+		var colorToVEColor = function(color, opacity) {
+			var mxColor = new mxn.util.Color(color);
+			var mxOpacity = (typeof(opacity) == 'undefined' || opacity === null) ? 1.0 : opacity;
+			var vecolor = new VEColor(mxColor.red, mxColor.green, mxColor.blue, mxOpacity);
+			return vecolor;
+		};
+		
+		for(var i = 0, length = this.points.length; i < length; i++) {
 			mpoints.push(this.points[i].toProprietary('microsoft'));
 		}
-		var mpolyline = new VEShape(VEShapeType.Polyline, mpoints);
-		if(this.color){
-			var color = new mxn.util.Color(this.color);
-			var opacity = (typeof(this.opacity) == 'undefined' || this.opacity === null) ? 1.0 : this.opacity;
-			var vecolor = new VEColor(color.red, color.green, color.blue, opacity);
-			mpolyline.SetLineColor(vecolor);
+		if (this.closed) {
+			mtype = VEShapeType.Polygon;
 		}
-		//	TODO ability to change line width
+		else {
+			mtype = VEShapeType.Polyline;
+		}
+		var mpolyline = new VEShape(mtype, mpoints);
+		if (this.width) {
+			mpolyline.SetLineWidth(this.width);
+		}
+		if (this.color) {
+			mpolyline.SetLineColor(colorToVEColor(this.color, this.opacity));
+		}
+		if (this.fillColor) {
+			mpolyline.SetFillColor(colorToVEColor(this.fillColor, this.fillOpacity));
+		}
+
 		return mpolyline;
 	},
 		

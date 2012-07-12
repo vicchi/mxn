@@ -38,8 +38,11 @@ mxn.register('cloudmade', {
 
 		applyOptions: function(){
 			var map = this.maps[this.api];
-			if(this.options.enableScrollWheelZoom){
+			if (this.options.enableScrollWheelZoom) {
 				map.enableScrollWheelZoom();
+			}
+			else {
+				map.disableScrollWheelZoom();
 			}
 		},
 
@@ -254,13 +257,13 @@ mxn.register('cloudmade', {
 		getPixelRatio: function() {
 			var map = this.maps[this.api];
 
-			// TODO: Add provider code	
+			// TODO: Add provider code
 		},
 
 		mousePosition: function(element) {
 			var map = this.maps[this.api];
 
-			// TODO: Add provider code	
+			// TODO: Add provider code
 		}
 	},
 
@@ -346,7 +349,7 @@ mxn.register('cloudmade', {
 			}
 			if (this.closed || pts[0].equals(pts[pts.length-1])) {
 				poly = new CM.Polygon(pts, this.color, this.width, this.opacity, this.fillColor || "#5462E3", this.opacity || "0.3");
-			} 
+			}
 			else {
 				poly = new CM.Polyline(pts, this.color, this.width, this.opacity);
 			}

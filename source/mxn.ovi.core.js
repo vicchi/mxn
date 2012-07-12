@@ -1,22 +1,11 @@
-/*
-Copyright (c) 2011 Tom Carden, Steve Coast, Mikel Maron, Andrew Turner, Henri Bergius, Rob Moran, Derek Fowler, Gary Gale
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
- * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- * Neither the name of the Mapstraction nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
 mxn.register('ovi', {
 
 Mapstraction: {
+
 	init: function(element, api) {
 		var me = this;
-		var	ovi_map;
-		var	mapLoaded = false;
+		var ovi_map;
+		var mapLoaded = false;
 		
 		var eventStates = {
 			"center": false,
@@ -77,12 +66,15 @@ Mapstraction: {
 						eventStates.mapsize = false;
 						me.load.fire();
 					}
+				} 
+				else {
+				    if (eventStates.center) {
+						eventStates.center = false;
+						me.moveendHandler(me);
+						me.endPan.fire();
+				    }
 				}
-				if (eventStates.center) {
-					eventStates.center = false;
-					me.moveendHandler(me);
-					me.endPan.fire();
-				}
+				
 				if (eventStates.zoom) {
 					eventStates.zoom = false;
 					me.changeZoom.fire();
@@ -99,7 +91,17 @@ Mapstraction: {
 	},
 	
 	applyOptions: function() {
-		// TODO
+		var map = this.maps[this.api];
+		
+		if (this.options.enableScrollWheelZoom) {
+			map.addComponent(new ovi.mapsapi.map.component.zoom.MouseWheel());
+		} 
+		else {
+			var mousewheel = map.getComponentById('zoom.MouseWheel');
+			if (mousewheel) {
+				map.removeComponent(mousewheel);
+			}
+		}	
 	},
 	
 	resizeTo: function(width, height) {
@@ -146,13 +148,11 @@ Mapstraction: {
 	// style of Zoom controls so, for now, make them functionally equivalent
 	addSmallControls: function() {
 		var map = this.maps[this.api];
-		
 		map.addComponent(new ovi.mapsapi.map.component.ZoomBar());
 	},
 	
 	addLargeControls: function() {
 		var map = this.maps[this.api];
-		
 		map.addComponent(new ovi.mapsapi.map.component.ZoomBar());
 	},
 	
@@ -172,7 +172,7 @@ Mapstraction: {
 	
 	addMarker: function(marker, old) {
 		var map = this.maps[this.api];
-		var	ovi_marker = marker.toProprietary(this.api);
+		var ovi_marker = marker.toProprietary(this.api);
 		
 		map.objects.add(ovi_marker);
 		return ovi_marker;
@@ -212,7 +212,7 @@ Mapstraction: {
 		var map = this.maps[this.api];
 		var pt = point.toProprietary(this.api);
 
-		map.setCentre(pt);
+		map.setCenter(pt);
 	},
 	
 	setZoom: function(zoom) {
@@ -276,23 +276,26 @@ Mapstraction: {
 	getBounds: function() {
 		var map = this.maps[this.api];
 		var bbox = map.getViewBounds();
-		var sw = bbox.topLeft;
-		var ne = bbox.bottomRight;
-
-		return new mxn.BoundingBox(sw.latitude, sw.longitude, ne.latitude, ne.longitude);
+		var nw = bbox.topLeft;
+		var se = bbox.bottomRight;
+		
+		return new mxn.BoundingBox(se.latitude, nw.longitude, nw.latitude, se.longitude);
 	},
 	
 	setBounds: function(bounds) {
 		var map = this.maps[this.api];
-		var sw = bounds.getSouthWest().toProprietary(this.api);
-		var ne = bounds.getNorthEast().toProprietary(this.api);
-		var ovi_bb = new ovi.mapsapi.geo.BoundingBox(sw, ne);
+
+		var sw = bounds.getSouthWest();
+		var ne = bounds.getNorthEast();
+
+		var nw = new mxn.LatLonPoint(ne.lat, sw.lon).toProprietary(this.api);
+		var se = new mxn.LatLonPoint(sw.lat, ne.lon).toProprietary(this.api);
+		var ovi_bb = new ovi.mapsapi.geo.BoundingBox(nw, se);
 		var keepCentre = false;
-		
 		map.zoomTo(ovi_bb, keepCentre);
 	},
 	
-	addImageOverlay: function(id, src, poacity, west, south, east, north, oContext) {
+	addImageOverlay: function(id, src, opacity, west, south, east, north, oContext) {
 		throw 'Not implemented';
 	},
 	
@@ -318,8 +321,8 @@ Mapstraction: {
 	
 	mousePosition: function(element) {
 		var map = this.maps[this.api];
-		var	locDisp = document.getElementById(element);
-		var	coords;
+		var locDisp = document.getElementById(element);
+		var coords;
 		
 		if (locDisp !== null) {
 			map.addListener('mousemove', function(event){
@@ -358,12 +361,12 @@ Marker: {
 
 		this.proprietary_infobubble = null;
 
-		var	prop_marker = new ovi.mapsapi.map.Marker(
+		var prop_marker = new ovi.mapsapi.map.Marker(
 				self.location.toProprietary('ovi'),
 				properties);
 
 		if (this.infoBubble) {
-			var	event_action = "click";
+			var event_action = "click";
 			if (this.hover) {
 				event_action = "mouseover";
 			}
@@ -376,7 +379,7 @@ Marker: {
 			prop_marker.enableDrag();
 			
 			prop_marker.addListener("dragstart", function(event){
-				var	bc = self.map.getComponentById("InfoBubbles");
+				var bc = self.map.getComponentById("InfoBubbles");
 
 				if (bc.bubbleExists(self.proprietary_infobubble)) {
 					self.closeBubble();
@@ -385,7 +388,7 @@ Marker: {
 			}, false);
 			
 			prop_marker.addListener("dragend", function(event){
-				var	xy = event.dataTransfer.getData("application/map-drag-object-offset");
+				var xy = event.dataTransfer.getData("application/map-drag-object-offset");
 				var new_coords = self.map.pixelToGeo(
 					event.displayX - xy.x + prop_marker.anchor.x,
 					event.displayY - xy.y + prop_marker.anchor.y
@@ -442,14 +445,14 @@ Marker: {
 Polyline: {
 	
 	toProprietary: function() {
-		var	coords = [];
+		var coords = [];
 		
 		for (var i=0, length=this.points.length; i<length; i++) {
 			coords.push(this.points[i].toProprietary('ovi'));
 		}
 		
 		if (this.closed || coords[0].equals(coords[length-1])) {
-			var	polycolor = new mxn.util.Color();
+			var polycolor = new mxn.util.Color();
 
 			polycolor.setHexColor(this.color || "#5462E3");
 

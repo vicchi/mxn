@@ -6,14 +6,24 @@ Geocoder: {
 		this.geocoders[this.api] = new google.maps.Geocoder();
 	},
 	
-	geocode: function(address){
+	geocode: function(query){
 		var me = this;
-
-		if (!address.hasOwnProperty('address') || address.address === null || address.address === '') {
-			address.address = [ address.street, address.locality, address.region, address.country ].join(', ');
+		var geocode_request_object = {};
+		if (typeof(query) == 'object') {
+			// query is a LatLonPoint object (reverse geocode)
+			if (query.hasOwnProperty('lat') && query.hasOwnProperty('lon')) {
+				geocode_request_object.latLng = query.toProprietary(this.api);
+			}
+			// query is an address object
+			else{
+				geocode_request_object.address = [ query.street, query.locality, query.region, query.country ].join(', ');
+			}
 		}
-		
-		this.geocoders[this.api].geocode({'address': address.address }, function(results, status) {
+		// query is an address string
+		else {
+			geocode_request_object.address = query;
+		}
+		this.geocoders[this.api].geocode(geocode_request_object, function(results, status) {
 			me.geocode_callback(results, status);
 		});
 	},

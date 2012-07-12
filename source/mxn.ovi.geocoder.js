@@ -2,9 +2,9 @@ mxn.register('ovi', {
 
 Geocoder: {
 	
-	init: function() {		
+	init: function() {
 		var me = this;
-		var	ovi_geocoder;
+		var ovi_geocoder;
 		
 		if (ovi.mapsapi) {
 			ovi_geocoder = new ovi.mapsapi.search.Manager();
@@ -22,17 +22,17 @@ Geocoder: {
 	},
 	
 	geocode: function(address){
-		var	ovi_geocoder = this.geocoders[this.api];
+		var ovi_geocoder = this.geocoders[this.api];
 		
 		ovi_geocoder.geocode(address);
 	},
 	
 	geocode_callback: function(response, status){
-		var	ovi_geocoder = this.geocoders[this.api];
+		var ovi_geocoder = this.geocoders[this.api];
 
 		if (status == "failed") {
-			var	error_cause = ovi_geocoder.getErrorCause();
-			var	error_status = "";
+			var error_cause = ovi_geocoder.getErrorCause();
+			var error_status = "";
 			
 			if (error_cause.type) {
 				error_status = error_cause.type;
@@ -52,18 +52,10 @@ Geocoder: {
 		}
 		
 		else if (status == "finished") {
-			var	return_location = {};
-			var	street_components = [];
+			var return_location = {};
+			var street_components = [];
 			var locality_components = [];
-			var	region_components = [];
-
-			// Mapping ovi.mapsapi.search.Address to return_location ...
-			//
-			// return_location.street = Address.houseNumber + Address.street
-			// return_location.locality = Address.district + Address.city
-			// return_location.postcode = Address.postalCode
-			// return_location.region = Address.county + Address.state
-			// return_location.country = Address.country
+			var region_components = [];
 
 			return_location.street = '';
 			return_location.locality = '';
@@ -72,8 +64,8 @@ Geocoder: {
 			return_location.country = '';
 
 			if (response.length > 0) {
-				var	address = response[0].address;
-				var	coords = response[0].displayPosition;
+				var address = response[0].address;
+				var coords = response[0].displayPosition;
 
 				if (address.street) {
 					street_components.push(address.street);
