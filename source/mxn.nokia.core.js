@@ -10,10 +10,10 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-mxn.register ('nokia', {
+mxn.register('nokia', {
 
 Mapstraction: {
-	init: function (element, api) {
+	init: function(element, api) {
 		var me = this;
 		var	nokia_map;
 		var	mapLoaded = false;
@@ -25,16 +25,16 @@ Mapstraction: {
 		};
 		
 		if (nokia.maps) {
-			nokia_map = new nokia.maps.map.Display (element);
-			nokia_map.addComponent (new nokia.maps.map.component.InfoBubbles ());
-			nokia_map.addComponent (new nokia.maps.map.component.Behavior ());
+			nokia_map = new nokia.maps.map.Display(element);
+			nokia_map.addComponent(new nokia.maps.map.component.InfoBubbles());
+			nokia_map.addComponent(new nokia.maps.map.component.Behavior());
 
 			// Handle click event
-			nokia_map.addListener ('click', function (event) {
-				coords = nokia_map.pixelToGeo (event.targetX, event.targetY);
-				me.click.fire (
+			nokia_map.addListener('click', function(event) {
+				coords = nokia_map.pixelToGeo(event.targetX, event.targetY);
+				me.click.fire(
 					{
-						'location': new mxn.LatLonPoint (coords.latitude, coords.longitude)
+						'location': new mxn.LatLonPoint(coords.latitude, coords.longitude)
 					});
 			});
 
@@ -45,7 +45,7 @@ Mapstraction: {
 			// fired during a start(/update) event sequence and then fire the relevent Mapstraction
 			// events upon receiving the Nokia end event
 
-			nokia_map.addListener ('mapviewchangestart', function (event) {
+			nokia_map.addListener('mapviewchangestart', function(event) {
 				if (event.data & event.MAPVIEWCHANGE_CENTER) {
 					eventStates.center = true;
 				}
@@ -57,7 +57,7 @@ Mapstraction: {
 				}
 			});
 
-			nokia_map.addListener ('mapviewchange', function (event) {
+			nokia_map.addListener('mapviewchange', function(event) {
 				if (event.data & event.MAPVIEWCHANGE_CENTER) {
 					eventStates.center = true;
 				}
@@ -69,7 +69,7 @@ Mapstraction: {
 				}
 			});
 
-			nokia_map.addListener ('mapviewchangeend', function (event) {
+			nokia_map.addListener('mapviewchangeend', function(event) {
 				// The Nokia Maps API doesn't support a "map loaded" event, but both a
 				// "centre" and "size" mapviewchangestart/mapviewchangeupdate/mapviewchangeend
 				// event sequence will be fired as part of the initial loading so we can trap
@@ -81,17 +81,17 @@ Mapstraction: {
 						eventStates.mapsize = false;
 						eventStates.center = false;
 						eventStates.zoom = false;
-						me.load.fire ();
+						me.load.fire();
 					}
 				}
 				if (eventStates.center) {
 					eventStates.center = false;
-					me.moveendHandler (me);
-					me.endPan.fire ();
+					me.moveendHandler(me);
+					me.endPan.fire();
 				}
 				if (eventStates.zoom) {
 					eventStates.zoom = false;
-					me.changeZoom.fire ();
+					me.changeZoom.fire();
 				}
 			});
 
@@ -104,16 +104,16 @@ Mapstraction: {
 		}
 	},
 	
-	applyOptions: function () {
+	applyOptions: function() {
 		// TODO
 	},
 	
-	resizeTo: function (width, height) {
+	resizeTo: function(width, height) {
 		this.currentElement.style.width = width;
 		this.currentElement.style.height = height;
 	},
 	
-	addControls: function (args) {
+	addControls: function(args) {
 		/* args = { 
 		 *     pan:      true,
 		 *     zoom:     'large' || 'small',
@@ -126,25 +126,25 @@ Mapstraction: {
 		var map = this.maps[this.api];
 		
 		if (args.pan) {
-			map.addComponent (new nokia.maps.map.component.Behavior ());
+			map.addComponent(new nokia.maps.map.component.Behavior());
 		}
 		
 		// TODO: The Nokia Maps API doesn't currently differentiate between large and small
 		// style of Zoom controls so, for now, make them functionally equivalent
 		if (args.zoom == 'large' || args.zoom == 'small') {
-			map.addComponent (new nokia.maps.map.component.ZoomBar ());
+			map.addComponent(new nokia.maps.map.component.ZoomBar());
 		}
 		
 		if (args.overview) {
-			map.addComponent (new nokia.maps.map.component.Overview ());
+			map.addComponent(new nokia.maps.map.component.Overview());
 		}
 		
 		if (args.scale) {
-			map.addComponent (new nokia.maps.map.component.ScaleBar ());
+			map.addComponent(new nokia.maps.map.component.ScaleBar());
 		}
 		
 		if (args.map_type) {
-			map.addComponent (new nokia.maps.map.component.TypeSelector ());
+			map.addComponent(new nokia.maps.map.component.TypeSelector());
 		}
 	},
 
@@ -153,117 +153,117 @@ Mapstraction: {
 	addSmallControls: function() {
 		var map = this.maps[this.api];
 		
-		map.addComponent (new nokia.maps.map.component.ZoomBar ());
+		map.addComponent(new nokia.maps.map.component.ZoomBar());
 	},
 	
-	addLargeControls: function () {
+	addLargeControls: function() {
 		var map = this.maps[this.api];
 		
-		map.addComponent(new nokia.maps.map.component.ZoomBar ());
+		map.addComponent(new nokia.maps.map.component.ZoomBar());
 	},
 	
-	addMapTypeControls: function () {
+	addMapTypeControls: function() {
 		var map = this.maps[this.api];
 		
-		map.addComponent (new nokia.maps.map.component.TypeSelector ());
+		map.addComponent(new nokia.maps.map.component.TypeSelector());
 	},
 	
-	setCenterAndZoom: function (point, zoom) {
+	setCenterAndZoom: function(point, zoom) {
 		var map = this.maps[this.api];
-		var pt = point.toProprietary (this.api);
+		var pt = point.toProprietary(this.api);
 		
-		map.setCenter (pt);
-		map.setZoomLevel (zoom);
+		map.setCenter(pt);
+		map.setZoomLevel(zoom);
 	},
 	
-	addMarker: function (marker, old) {
+	addMarker: function(marker, old) {
 		var map = this.maps[this.api];
-		var	nokia_marker = marker.toProprietary (this.api);
+		var	nokia_marker = marker.toProprietary(this.api);
 		
-		map.objects.add (nokia_marker);
+		map.objects.add(nokia_marker);
 		return nokia_marker;
 	},
 	
-	removeMarker: function (marker) {
+	removeMarker: function(marker) {
 		var map = this.maps[this.api];
 		
-		map.objects.remove (marker.proprietary_marker);
+		map.objects.remove(marker.proprietary_marker);
 	},
 	
-	declutterMarkers: function (opts) {
+	declutterMarkers: function(opts) {
 		throw 'Not supported';
 	},
 	
-	addPolyline: function (polyline, old) {
+	addPolyline: function(polyline, old) {
 		var map = this.maps[this.api];
-		var nokia_polyline = polyline.toProprietary (this.api);
+		var nokia_polyline = polyline.toProprietary(this.api);
 
-		map.objects.add (nokia_polyline);
+		map.objects.add(nokia_polyline);
 		return nokia_polyline;
 	},
 	
-	removePolyline: function (polyline) {
+	removePolyline: function(polyline) {
 		var map = this.maps[this.api];
 
-		map.objects.remove (polyline.proprietary_polyline);
+		map.objects.remove(polyline.proprietary_polyline);
 	},
 	
-	getCenter: function () {
+	getCenter: function() {
 		var map = this.maps[this.api];
 		
-		return new mxn.LatLonPoint (map.center.latitude, map.center.longitude);
+		return new mxn.LatLonPoint(map.center.latitude, map.center.longitude);
 	},
 	
-	setCenter: function (point, options) {
+	setCenter: function(point, options) {
 		var map = this.maps[this.api];
-		var pt = point.toProprietary (this.api);
+		var pt = point.toProprietary(this.api);
 
-		map.setCenter (pt);
+		map.setCenter(pt);
 	},
 	
-	setZoom: function (zoom) {
+	setZoom: function(zoom) {
 		var map = this.maps[this.api];
 		
-		map.setZoomLevel (zoom);
+		map.setZoomLevel(zoom);
 	},
 	
-	getZoom: function () {
+	getZoom: function() {
 		var map = this.maps[this.api];
 		
 		return map.zoomLevel;
 	},
 	
-	getZoomLevelForBoundingBox: function (bbox) {
+	getZoomLevelForBoundingBox: function(bbox) {
 		var map = this.maps[this.api];
-		var sw = bbox.getSouthWest().toProprietary (this.api);
-		var ne = bbox.getNorthEast().toProprietary (this.api);
-		var nokia_bb = new nokia.maps.geo.BoundingBox (sw, ne);
+		var sw = bbox.getSouthWest().toProprietary(this.api);
+		var ne = bbox.getNorthEast().toProprietary(this.api);
+		var nokia_bb = new nokia.maps.geo.BoundingBox(sw, ne);
 		
-		return map.getBestZoomLevel (nokia_bb);
+		return map.getBestZoomLevel(nokia_bb);
 	},
 	
-	setMapType: function (type) {
+	setMapType: function(type) {
 		var map = this.maps[this.api];
 		
 		switch (type) {
 			case mxn.Mapstraction.ROAD:
-				map.set ("baseMapType", map.NORMAL);
+				map.set("baseMapType", map.NORMAL);
 				break;
 			case mxn.Mapstraction.PHYSICAL:
-				map.set ("baseMapType", map.TERRAIN);
+				map.set("baseMapType", map.TERRAIN);
 				break;
 			case mxn.Mapstraction.HYBRID:
 				throw 'Not implemented';
 			case mxn.Mapstraction.SATELLITE:
-				map.set ("baseMapType", map.SATELLITE);
+				map.set("baseMapType", map.SATELLITE);
 				break;
 			default:
-				map.set ("baseMapType", map.NORMAL);
+				map.set("baseMapType", map.NORMAL);
 				break;
 		}	// end-switch ()
 	},
 	
-	getMapType: function () {
+	getMapType: function() {
 		var map = this.maps[this.api];
 		var type = map.baseMapType;
 		
@@ -279,58 +279,58 @@ Mapstraction: {
 		}	// end-switch ()
 	},
 	
-	getBounds: function () {
+	getBounds: function() {
 		var map = this.maps[this.api];
-		var bbox = map.getViewBounds ();
+		var bbox = map.getViewBounds();
 		var sw = bbox.topLeft;
 		var ne = bbox.bottomRight;
 
-		return new mxn.BoundingBox (sw.latitude, sw.longitude, ne.latitude, ne.longitude);
+		return new mxn.BoundingBox(sw.latitude, sw.longitude, ne.latitude, ne.longitude);
 	},
 	
-	setBounds: function (bounds) {
+	setBounds: function(bounds) {
 		var map = this.maps[this.api];
-		var sw = bounds.getSouthWest ().toProprietary (this.api);
-		var ne = bounds.getNorthEast ().toProprietary (this.api);
-		var nokia_bb = new nokia.maps.geo.BoundingBox (sw, ne);
+		var sw = bounds.getSouthWest().toProprietary(this.api);
+		var ne = bounds.getNorthEast().toProprietary(this.api);
+		var nokia_bb = new nokia.maps.geo.BoundingBox(sw, ne);
 		var keepCentre = false;
 		
 		map.zoomTo(nokia_bb, keepCentre);
 	},
 	
-	addImageOverlay: function (id, src, opacity, west, south, east, north, oContext) {
+	addImageOverlay: function(id, src, opacity, west, south, east, north, oContext) {
 		throw 'Not implemented';
 	},
 	
-	setImagePosition: function (id, oContext) {
+	setImagePosition: function(id, oContext) {
 		throw 'Not implemented';
 	},
 	
-	addOverlay: function (url, autoCenterAndZoom) {
+	addOverlay: function(url, autoCenterAndZoom) {
 		throw 'Not implemented';
 	},
 	
-	addTileLayer: function (tile_url, opacity, copyright_text, min_zoom, max_zoom, map_type) {
+	addTileLayer: function(tile_url, opacity, copyright_text, min_zoom, max_zoom, map_type) {
 		throw 'Not implemented';
 	},
 	
-	toggleTileLayer: function (tile_url) {
+	toggleTileLayer: function(tile_url) {
 		throw 'Not implemented';
 	},
 	
-	getPixelRatio: function () {
+	getPixelRatio: function() {
 		throw 'Not implemented';
 	},
 	
-	mousePosition: function (element) {
+	mousePosition: function(element) {
 		var map = this.maps[this.api];
-		var	locDisp = document.getElementById (element);
+		var	locDisp = document.getElementById(element);
 		var	coords;
 		
 		if (locDisp !== null) {
-			map.addListener ('mousemove', function(event){
-				coords = map.pixelToGeo (event.targetX, event.targetY);
-				locDisp.innerHTML = coords.latitude.toFixed (4) + ' / ' + coords.longitude.toFixed (4);
+			map.addListener('mousemove', function(event){
+				coords = map.pixelToGeo(event.targetX, event.targetY);
+				locDisp.innerHTML = coords.latitude.toFixed(4) + ' / ' + coords.longitude.toFixed(4);
 			});		
 			locDisp.innerHTML = '0.0000 / 0.0000';
 		}
@@ -339,11 +339,11 @@ Mapstraction: {
 
 LatLonPoint: {
 	
-	toProprietary: function () {
-		return new nokia.maps.geo.Coordinate (this.lat, this.lon);
+	toProprietary: function() {
+		return new nokia.maps.geo.Coordinate(this.lat, this.lon);
 	},
 	
-	fromProprietary: function (nokiaCoordinate) {
+	fromProprietary: function(nokiaCoordinate) {
 		this.lat = nokiaCoordinate.latitude;
 		this.lon = nokiaCoordinate.longitude;
 	}
@@ -351,7 +351,7 @@ LatLonPoint: {
 
 Marker: {
 	
-	toProprietary: function () {
+	toProprietary: function() {
 		var properties = [];
 		var self = this;
 		
@@ -364,8 +364,8 @@ Marker: {
 
 		this.proprietary_infobubble = null;
 
-		var	prop_marker = new nokia.maps.map.Marker (
-				self.location.toProprietary ('nokia'),
+		var	prop_marker = new nokia.maps.map.Marker(
+				self.location.toProprietary('nokia'),
 				properties);
 
 		if (this.infoBubble) {
@@ -373,39 +373,39 @@ Marker: {
 			if (this.hover) {
 				event_action = "mouseover";
 			}
-			prop_marker.addListener (event_action, function () {
-				self.openBubble ();
+			prop_marker.addListener(event_action, function() {
+				self.openBubble();
 			});
 		}
 
 		if (this.draggable) {
-			prop_marker.enableDrag ();
+			prop_marker.enableDrag();
 			
-			prop_marker.addListener ("dragstart", function (event){
-				var	bc = self.map.getComponentById ("InfoBubbles");
+			prop_marker.addListener("dragstart", function(event){
+				var	bc = self.map.getComponentById("InfoBubbles");
 
-				if (bc.bubbleExists (self.proprietary_infobubble)) {
-					self.closeBubble ();
-					prop_marker.set ("restore_infobubble", true);
+				if (bc.bubbleExists(self.proprietary_infobubble)) {
+					self.closeBubble();
+					prop_marker.set("restore_infobubble", true);
 				}
 			}, false);
 			
-			prop_marker.addListener ("dragend", function (event){
-				var	xy = event.dataTransfer.getData ("application/map-drag-object-offset");
-				var new_coords = self.map.pixelToGeo (
+			prop_marker.addListener("dragend", function(event){
+				var	xy = event.dataTransfer.getData("application/map-drag-object-offset");
+				var new_coords = self.map.pixelToGeo(
 					event.displayX - xy.x + prop_marker.anchor.x,
 					event.displayY - xy.y + prop_marker.anchor.y
 					);
-				var bb = self.map.getBoundingBox ();
+				var bb = self.map.getBoundingBox();
 				
-				if (bb.contains (new_coords)) {
+				if (bb.contains(new_coords)) {
 					self.location.lat = new_coords.latitude;
 					self.location.lon = new_coords.longitude;
 				}
 				
-				if (prop_marker.get ("restore_infobubble")) {
-					prop_marker.set ("restore_infobubble", false);
-					self.openBubble ();
+				if (prop_marker.get("restore_infobubble")) {
+					prop_marker.set("restore_infobubble", false);
+					self.openBubble();
 				}
 			}, false);
 		}
@@ -413,33 +413,33 @@ Marker: {
 		return prop_marker;
 	},
 	
-	openBubble: function () {
+	openBubble: function() {
 		if (!this.map) {
 			throw 'This marker must be added to a map in order to manage a Bubble';
 		}
-		this.proprietary_infobubble = this.map.getComponentById ("InfoBubbles").addBubble (this.infoBubble, this.location.toProprietary ('nokia'));
+		this.proprietary_infobubble = this.map.getComponentById("InfoBubbles").addBubble(this.infoBubble, this.location.toProprietary('nokia'));
 	},
 	
-	closeBubble: function () {
+	closeBubble: function() {
 		if (!this.map) {
 			throw 'This marker must be added to a map in order to manage a Bubble';
 		}
 
-		if (this.map.getComponentById ("InfoBubbles").bubbleExists (this.proprietary_infobubble)) {
-			this.map.getComponentById ("InfoBubbles").removeBubble (this.proprietary_infobubble);
+		if (this.map.getComponentById("InfoBubbles").bubbleExists(this.proprietary_infobubble)) {
+			this.map.getComponentById("InfoBubbles").removeBubble(this.proprietary_infobubble);
 		}
 		this.proprietary_infobubble = null;
 	},
 	
 	hide: function() {
-		this.proprietary_marker.set ('visibility', false);
+		this.proprietary_marker.set('visibility', false);
 	},
 	
 	show: function() {
-		this.proprietary_marker.set ('visibility', true);
+		this.proprietary_marker.set('visibility', true);
 	},
 	
-	update: function () {
+	update: function() {
 		throw 'Not implemented';
 	}
 	
@@ -447,19 +447,19 @@ Marker: {
 
 Polyline: {
 	
-	toProprietary: function () {
+	toProprietary: function() {
 		var	coords = [];
 		
 		for (var i=0, length=this.points.length; i<length; i++) {
-			coords.push (this.points[i].toProprietary('nokia'));
+			coords.push(this.points[i].toProprietary('nokia'));
 		}
 		
-		if (this.closed || coords[0].equals (coords[length-1])) {
-			var	polycolor = new mxn.util.Color ();
+		if (this.closed || coords[0].equals(coords[length-1])) {
+			var	polycolor = new mxn.util.Color();
 
-			polycolor.setHexColor (this.color || "#5462E3");
+			polycolor.setHexColor(this.color || "#5462E3");
 
-			var polycolor_rgba = "rgba (" + polycolor.red + "," + polycolor.green + "," +
+			var polycolor_rgba = "rgba(" + polycolor.red + "," + polycolor.green + "," +
 				polycolor.blue + "," + (this.opacity || 1.0) + ")";
 			var polygon_options = {
 				'visibility' : true,
@@ -468,7 +468,7 @@ Polyline: {
 				'stroke' : 'solid',
 				'width' : this.width || 1
 			};
-			this.proprietary_polyline = new nokia.maps.map.Polygon (coords, polygon_options);
+			this.proprietary_polyline = new nokia.maps.map.Polygon(coords, polygon_options);
 		}
 		
 		else {
@@ -478,18 +478,18 @@ Polyline: {
 				'stroke' : 'solid',
 				'width' : this.width || 1
 			};
-			this.proprietary_polyline = new nokia.maps.map.Polyline (coords, polyline_options);
+			this.proprietary_polyline = new nokia.maps.map.Polyline(coords, polyline_options);
 		}
 		
 		return this.proprietary_polyline;
 	},
 	
-	show: function () {
-		this.proprietary_polyline.set ('visibility', true);
+	show: function() {
+		this.proprietary_polyline.set('visibility', true);
 	},
 	
-	hide: function () {
-		this.proprietary_polyline.set ('visibility', false);
+	hide: function() {
+		this.proprietary_polyline.set('visibility', false);
 	}
 	
 }
